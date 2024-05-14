@@ -1,6 +1,6 @@
 import { PaymentService } from './paymentService'; // Assuming you have exported PaymentService class
 
-declare namespace Pec {
+declare namespace pec {
   interface PecInstance {
     paymentService: PaymentService;
   }
@@ -8,4 +8,4 @@ declare namespace Pec {
   function createInstance(terminalPin: string, defaultCallbackURL?: string): PecInstance;
 }
 
-export = Pec;
+export = pec;
