@@ -134,16 +134,18 @@ export class PaymentService {
 
     try {
       //* making request with body and header
-      const response: AxiosResponse<string> = await axios.post(
+      const response: AxiosResponse<Document> = await axios.post(
         SOAP_PAYMENT_REQUEST_HEADER,
         gatewayBody,
         {
           headers: mergedHeaders,
+          responseType: 'document',
         }
       );
 
       //* parsing XML typed resposne from pec API gateway to JSON
-      const jsonResponse = await parseXmlResponse<SoapPaymentRequestResponse>(response.data);
+      const xmlString = new XMLSerializer().serializeToString(response.data);
+      const jsonResponse = await parseXmlResponse<SoapPaymentRequestResponse>(xmlString);
 
       const { Status, Token, Message } =
         jsonResponse['soap:Envelope']['soap:Body']['SalePaymentRequestResponse'][
@@ -178,16 +180,18 @@ export class PaymentService {
 
     try {
       //* making request with body and header
-      const response: AxiosResponse<string> = await axios.post(
+      const response: AxiosResponse<Document> = await axios.post(
         SOAP_PAYMENT_VERIFICATION_HEADER,
         gatewayBody,
         {
           headers: mergedHeaders,
+          responseType: 'document',
         }
       );
 
       //* parsing XML typed resposne from pec API gateway to JSON
-      const jsonResponse = await parseXmlResponse<SoapPaymentVerificationResponse>(response.data);
+      const xmlString = new XMLSerializer().serializeToString(response.data);
+      const jsonResponse = await parseXmlResponse<SoapPaymentVerificationResponse>(xmlString);
 
       const { Status, CardNumberMasked, Token, RRN } =
         jsonResponse['soap:Envelope']['soap:Body']['ConfirmPaymentResponse'][
@@ -222,16 +226,18 @@ export class PaymentService {
 
     try {
       //* making request with body and header
-      const response: AxiosResponse<string> = await axios.post(
+      const response: AxiosResponse<Document> = await axios.post(
         SOAP_PAYMENT_REVERSE_HEADER,
         gatewayBody,
         {
           headers: mergedHeaders,
+          responseType: 'document',
         }
       );
 
       //* parsing XML typed resposne from pec API gateway to JSON
-      const jsonResponse = await parseXmlResponse<SoapPaymentReverseResponse>(response.data);
+      const xmlString = new XMLSerializer().serializeToString(response.data);
+      const jsonResponse = await parseXmlResponse<SoapPaymentReverseResponse>(xmlString);
 
       const { Status, Token, Message } =
         jsonResponse['soap:Envelope']['soap:Body']['ReversalRequestResponse'][
