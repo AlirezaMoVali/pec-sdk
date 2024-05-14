@@ -104,6 +104,8 @@ export class PaymentService {
 
   //* method: creating a new payment in pec ipg with given args
   async paymentRequest(input: PaymentRequestInput): Promise<PaymentRequestOutput> {
+    console.log('🚀 ~ PaymentService ~ paymentRequest ~ input:', input);
+
     const mergedHeaders = {
       'soap-action': SOAP_PAYMENT_REQUEST_HEADER,
       'Content-Type': CONTENT_TYPE_HEADER,
