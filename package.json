@@ -1,6 +1,6 @@
 {
   "name": "pec-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "sdk for pec payment gateway.",
   "main": "dist/index.js",
   "scripts": {
