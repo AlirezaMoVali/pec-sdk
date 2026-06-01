@@ -1,7 +1,7 @@
-# pec-sdk
+# pec-payment-sdk
 
-[![npm version](https://img.shields.io/npm/v/pec-sdk?logo=npm&logoColor=white)](https://www.npmjs.com/package/pec-sdk)
-[![npm downloads](https://img.shields.io/npm/dm/pec-sdk?logo=npm&logoColor=white&label=downloads)](https://www.npmjs.com/package/pec-sdk)
+[![npm version](https://img.shields.io/npm/v/pec-payment-sdk?logo=npm&logoColor=white)](https://www.npmjs.com/package/pec-payment-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/pec-payment-sdk?logo=npm&logoColor=white&label=downloads)](https://www.npmjs.com/package/pec-payment-sdk)
 [![GitHub stars](https://img.shields.io/github/stars/AlirezaMoVali/pec-sdk?style=flat&logo=github)](https://github.com/AlirezaMoVali/pec-sdk/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/AlirezaMoVali/pec-sdk?style=flat&logo=github)](https://github.com/AlirezaMoVali/pec-sdk/issues)
 [![GitHub license](https://img.shields.io/github/license/AlirezaMoVali/pec-sdk?style=flat)](https://github.com/AlirezaMoVali/pec-sdk/blob/main/LICENSE)
@@ -32,7 +32,7 @@ SDK نوشته‌شده با TypeScript/JavaScript برای درگاه پردا�
 ## نصب
 
 ```bash
-npm install pec-sdk
+npm install pec-payment-sdk
 ```
 
 ## شروع سریع
@@ -46,7 +46,7 @@ import {
   parseCallback,
   shouldConfirmPayment,
   isSuccessStatus,
-} from 'pec-sdk';
+} from 'pec-payment-sdk';
 
 const client = new PecClient({
   loginAccount: process.env.PEC_LOGIN_ACCOUNT!,
@@ -73,7 +73,7 @@ const {
   generateOrderId,
   parseCallback,
   shouldConfirmPayment,
-} = require('pec-sdk');
+} = require('pec-payment-sdk');
 
 const client = new PecClient({
   loginAccount: process.env.PEC_LOGIN_ACCOUNT,
@@ -124,7 +124,7 @@ PEC مبلغ را به **ریال** می‌پذیرد. مبلغ را با واح
 | `'rial'` | `500000` | `500000` ریال |
 
 ```typescript
-import { toRials } from 'pec-sdk';
+import { toRials } from 'pec-payment-sdk';
 
 toRials(50000, 'toman'); // 500000
 toRials(500000, 'rial'); // 500000
@@ -186,12 +186,12 @@ const client = new PecClient({
 
 ```javascript
 // CommonJS
-const { PecClient } = require('pec-sdk');
+const { PecClient } = require('pec-payment-sdk');
 ```
 
 ```typescript
 // ESM
-import { PecClient } from 'pec-sdk';
+import { PecClient } from 'pec-payment-sdk';
 ```
 
 ## متغیرهای محیطی (پیشنهادی)

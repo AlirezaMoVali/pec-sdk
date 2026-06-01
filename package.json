@@ -1,6 +1,23 @@
 {
-  "name": "pec-sdk",
+  "name": "pec-payment-sdk",
   "version": "1.1.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlirezaMoVali/pec-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlirezaMoVali/pec-sdk/issues"
+  },
+  "homepage": "https://github.com/AlirezaMoVali/pec-sdk#readme",
+  "keywords": [
+    "pec",
+    "parsian",
+    "payment",
+    "gateway",
+    "shaparak",
+    "iran",
+    "ipg"
+  ],
   "description": "TypeScript SDK for PEC (Parsian Electronic Commerce) payment gateway.",
   "type": "commonjs",
   "main": "./dist/cjs/index.js",
