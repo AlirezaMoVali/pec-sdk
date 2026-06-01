@@ -1,6 +1,6 @@
 {
   "name": "pec-payment-sdk",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AlirezaMoVali/pec-sdk.git"
@@ -50,7 +50,7 @@
   "devDependencies": {
     "@types/node": "^22.10.0",
     "typescript": "^5.4.4",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "axios": "^1.6.8",
