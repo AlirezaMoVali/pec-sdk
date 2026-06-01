@@ -5,7 +5,6 @@
 [![GitHub stars](https://img.shields.io/github/stars/AlirezaMoVali/pec-sdk?style=flat&logo=github)](https://github.com/AlirezaMoVali/pec-sdk/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/AlirezaMoVali/pec-sdk?style=flat&logo=github)](https://github.com/AlirezaMoVali/pec-sdk/issues)
 [![GitHub license](https://img.shields.io/github/license/AlirezaMoVali/pec-sdk?style=flat)](https://github.com/AlirezaMoVali/pec-sdk/blob/main/LICENSE)
-[![Node.js](https://img.shields.io/node/v/pec-sdk?style=flat&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 [English](./README.md) | **فارسی**
