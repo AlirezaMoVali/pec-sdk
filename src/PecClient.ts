@@ -22,11 +22,14 @@ import type {
 } from './types.js';
 import {
   buildPaymentTokenResult,
-  isValidHttpsUrl,
+  isValidUrl,
   mapMultiplexedAccounts,
+  normalizeBillInfoResult,
   normalizeSoapField,
   normalizeSoapNumber,
   toRials,
+  validateAmount,
+  validateSaleReportDateRange,
 } from './utils.js';
 
 export class PecClient {
@@ -34,7 +37,7 @@ export class PecClient {
   private readonly defaultCallbackUrl?: string;
 
   constructor(options: PecClientOptions) {
-    if (!options.loginAccount?.trim()) {
+    if (!options?.loginAccount?.trim()) {
       throw new PecValidationError('loginAccount is required');
     }
 
@@ -45,13 +48,14 @@ export class PecClient {
   /** Starts a standard sale payment and returns a token plus redirect URL. */
   async requestPayment(input: RequestPaymentInput): Promise<PaymentTokenResult> {
     const callbackUrl = this.resolveCallbackUrl(input.callbackUrl);
+    const currency = input.currency ?? 'toman';
 
     const result = await callSoapMethod<{
       SalePaymentRequestResult?: Record<string, unknown>;
-    }>(WSDL.SALE, 'SalePaymentRequestAsync', {
+    } | null>(WSDL.SALE, 'SalePaymentRequestAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
-        Amount: toRials(input.amount, input.currency ?? 'toman'),
+        Amount: toRials(input.amount, currency),
         OrderId: input.orderId,
         CallBackUrl: callbackUrl,
         AdditionalData: input.additionalData ?? '',
@@ -59,7 +63,7 @@ export class PecClient {
       },
     });
 
-    const payload = result.SalePaymentRequestResult ?? {};
+    const payload = result?.SalePaymentRequestResult ?? {};
     return buildPaymentTokenResult(payload.Status, payload.Token, payload.Message);
   }
 
@@ -68,24 +72,25 @@ export class PecClient {
     input: RequestMultiplexedPaymentInput
   ): Promise<PaymentTokenResult> {
     const callbackUrl = this.resolveCallbackUrl(input.callbackUrl);
+    const currency = input.currency ?? 'toman';
 
     const result = await callSoapMethod<{
       MultiplexedSaleWithIBANPaymentRequestResult?: Record<string, unknown>;
-    }>(WSDL.MULTIPLEXED_SALE, 'MultiplexedSaleWithIBANPaymentRequestAsync', {
+    } | null>(WSDL.MULTIPLEXED_SALE, 'MultiplexedSaleWithIBANPaymentRequestAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
-        Amount: toRials(input.amount, input.currency ?? 'toman'),
+        Amount: toRials(input.amount, currency),
         OrderId: input.orderId,
         CallBackUrl: callbackUrl,
         AdditionalData: '',
         Originator: input.originator ?? '',
         MultiplexedAccounts: {
-          MultiplexedAccount: mapMultiplexedAccounts(input.accounts),
+          MultiplexedAccount: mapMultiplexedAccounts(input.accounts, currency),
         },
       },
     });
 
-    const payload = result.MultiplexedSaleWithIBANPaymentRequestResult ?? {};
+    const payload = result?.MultiplexedSaleWithIBANPaymentRequestResult ?? {};
     return buildPaymentTokenResult(payload.Status, payload.Token, payload.Message);
   }
 
@@ -94,13 +99,14 @@ export class PecClient {
     input: RequestGovernmentPaymentInput
   ): Promise<PaymentTokenResult> {
     const callbackUrl = this.resolveCallbackUrl(input.callbackUrl);
+    const currency = input.currency ?? 'toman';
 
     const result = await callSoapMethod<{
       SalePaymentRequestResult?: Record<string, unknown>;
-    }>(WSDL.GOVERNMENT_SALE, 'SalePaymentRequestAsync', {
+    } | null>(WSDL.GOVERNMENT_SALE, 'SalePaymentRequestAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
-        Amount: toRials(input.amount, input.currency ?? 'toman'),
+        Amount: toRials(input.amount, currency),
         OrderId: input.orderId,
         CallBackUrl: callbackUrl,
         AdditionalData: `GOVId=${input.govId}`,
@@ -108,7 +114,7 @@ export class PecClient {
       },
     });
 
-    const payload = result.SalePaymentRequestResult ?? {};
+    const payload = result?.SalePaymentRequestResult ?? {};
     return buildPaymentTokenResult(payload.Status, payload.Token, payload.Message);
   }
 
@@ -117,24 +123,25 @@ export class PecClient {
     input: RequestGovernmentMultiplexedPaymentInput
   ): Promise<PaymentTokenResult> {
     const callbackUrl = this.resolveCallbackUrl(input.callbackUrl);
+    const currency = input.currency ?? 'toman';
 
     const result = await callSoapMethod<{
       GovSaleWithMultiIbanPaymentRequestSW2Result?: Record<string, unknown>;
-    }>(WSDL.GOVERNMENT_SALE, 'GovSaleWithMultiIbanPaymentRequestSW2Async', {
+    } | null>(WSDL.GOVERNMENT_SALE, 'GovSaleWithMultiIbanPaymentRequestSW2Async', {
       requestData: {
         LoginAccount: this.loginAccount,
-        Amount: toRials(input.amount, input.currency ?? 'toman'),
+        Amount: toRials(input.amount, currency),
         OrderId: input.orderId,
         CallBackUrl: callbackUrl,
         AdditionalData: `GOVId=${input.govId}`,
         Originator: input.originator ?? '',
         MultiplexedAccounts: {
-          MultiplexedAccount: mapMultiplexedAccounts(input.accounts),
+          MultiplexedAccount: mapMultiplexedAccounts(input.accounts, currency),
         },
       },
     });
 
-    const payload = result.GovSaleWithMultiIbanPaymentRequestSW2Result ?? {};
+    const payload = result?.GovSaleWithMultiIbanPaymentRequestSW2Result ?? {};
     return buildPaymentTokenResult(payload.Status, payload.Token, payload.Message);
   }
 
@@ -144,7 +151,7 @@ export class PecClient {
 
     const result = await callSoapMethod<{
       BillPaymentRequestResult?: Record<string, unknown>;
-    }>(WSDL.BILL, 'BillPaymentRequestAsync', {
+    } | null>(WSDL.BILL, 'BillPaymentRequestAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
         BillId: input.billId,
@@ -157,62 +164,68 @@ export class PecClient {
       },
     });
 
-    const payload = result.BillPaymentRequestResult ?? {};
+    const payload = result?.BillPaymentRequestResult ?? {};
     return buildPaymentTokenResult(payload.Status, payload.Token, payload.Message);
   }
 
   /** Retrieves bill details before payment. */
   async getBillInfo(input: GetBillInfoInput): Promise<BillInfoResult> {
+    if (!input.billId?.trim() || !input.payId?.trim()) {
+      throw new PecValidationError('billId and payId are required');
+    }
+
     const result = await callSoapMethod<{
       GetBillInfoResult?: Record<string, unknown>;
-    }>(WSDL.BILL, 'GetBillInfoAsync', {
+    } | null>(WSDL.BILL, 'GetBillInfoAsync', {
       billId: input.billId,
       payId: input.payId,
     });
 
-    const payload = result.GetBillInfoResult ?? {};
-    return {
-      status: normalizeSoapNumber(payload.Status),
-      ...payload,
-    };
+    const payload = result?.GetBillInfoResult ?? {};
+    return normalizeBillInfoResult(payload);
   }
 
   /** Starts a mobile top-up/charge request. */
   async requestMobileTopup(input: RequestMobileTopupInput): Promise<PaymentTokenResult> {
     const callbackUrl = this.resolveCallbackUrl(input.callbackUrl);
+    const currency = input.currency ?? 'toman';
 
     const result = await callSoapMethod<{
       TopupChargeRequestResult?: Record<string, unknown>;
-    }>(WSDL.MOBILE_TOPUP, 'TopupChargeRequestAsync', {
+    } | null>(WSDL.MOBILE_TOPUP, 'TopupChargeRequestAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
         OrderId: input.orderId,
         ChargeMobileNumber: input.chargeMobileNumber,
         RequesterMobileNumber: input.requesterMobileNumber,
         TopupType: input.topupType,
-        Amount: toRials(input.amount, input.currency ?? 'toman'),
+        Amount: toRials(input.amount, currency),
         CallBackUrl: callbackUrl,
         AdditionalData: input.additionalData ?? '',
         Originator: input.originator ?? '',
       },
     });
 
-    const payload = result.TopupChargeRequestResult ?? {};
+    const payload = result?.TopupChargeRequestResult ?? {};
     return buildPaymentTokenResult(payload.Status, payload.Token, payload.Message);
   }
 
   /** Confirms/settles a successful payment using its token. */
   async confirmPayment(input: ConfirmPaymentInput): Promise<ConfirmPaymentResult> {
+    if (input.token === undefined || input.token === null || input.token === '') {
+      throw new PecValidationError('token is required');
+    }
+
     const result = await callSoapMethod<{
       ConfirmPaymentResult?: Record<string, unknown>;
-    }>(WSDL.CONFIRM, 'ConfirmPaymentAsync', {
+    } | null>(WSDL.CONFIRM, 'ConfirmPaymentAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
         Token: input.token,
       },
     });
 
-    const payload = result.ConfirmPaymentResult ?? {};
+    const payload = result?.ConfirmPaymentResult ?? {};
     return {
       status: normalizeSoapNumber(payload.Status),
       token: normalizeSoapField(payload.Token),
@@ -223,16 +236,20 @@ export class PecClient {
 
   /** Reverses a payment. Works only within the bank's allowed time window. */
   async reversePayment(input: ReversePaymentInput): Promise<ReversePaymentResult> {
+    if (input.token === undefined || input.token === null || input.token === '') {
+      throw new PecValidationError('token is required');
+    }
+
     const result = await callSoapMethod<{
       ReversalRequestResult?: Record<string, unknown>;
-    }>(WSDL.REVERSAL, 'ReversalRequestAsync', {
+    } | null>(WSDL.REVERSAL, 'ReversalRequestAsync', {
       requestData: {
         LoginAccount: this.loginAccount,
         Token: input.token,
       },
     });
 
-    const payload = result.ReversalRequestResult ?? {};
+    const payload = result?.ReversalRequestResult ?? {};
     return {
       status: normalizeSoapNumber(payload.Status),
       token: normalizeSoapField(payload.Token),
@@ -242,6 +259,12 @@ export class PecClient {
 
   /** Fetches sale transactions from PEC reporting REST API. */
   async getSaleReport(input: GetSaleReportInput): Promise<GetSaleReportResult> {
+    if (!input.username?.trim() || !input.password?.trim()) {
+      throw new PecValidationError('username and password are required');
+    }
+
+    validateSaleReportDateRange(input.fromDate, input.toDate);
+
     const authToken = Buffer.from(`${input.username}|${input.password}`).toString('base64');
 
     try {
@@ -275,8 +298,8 @@ export class PecClient {
       throw new PecValidationError('callbackUrl is required');
     }
 
-    if (!isValidHttpsUrl(resolved)) {
-      throw new PecValidationError('callbackUrl must be a valid HTTPS URL');
+    if (!isValidUrl(resolved)) {
+      throw new PecValidationError('callbackUrl must be a valid HTTP or HTTPS URL');
     }
 
     return resolved;

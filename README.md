@@ -93,7 +93,9 @@ const client = new PecClient({
 
 ### Callback handler (Express example)
 
-After payment, PEC **POSTs** to your callback URL with fields such as `Token`, `status`, `OrderId`, `RRN`, `Amount`, and `TerminalNo`.
+After payment, PEC **POSTs** to your callback URL with fields such as `Token`, `status`, `OrderId`, `RRN`, `Amount`, and `TerminalNo`. Pass `req.body` to `parseCallback()`. If your route reads query parameters instead, merge them into one object first.
+
+Callback URLs may use **HTTP** (e.g. `http://localhost`) for local development or **HTTPS** in production.
 
 ```typescript
 app.post('/payment/callback', async (req, res) => {
@@ -128,6 +130,8 @@ import { toRials } from 'pec-sdk';
 toRials(50000, 'toman'); // 500000
 toRials(500000, 'rial'); // 500000
 ```
+
+For **multiplexed payments**, each account `amount` uses the same `currency` as the main request.
 
 ## API reference
 
@@ -164,7 +168,10 @@ const client = new PecClient({
 | `parseCallback(body)` | Parse bank callback POST body |
 | `shouldConfirmPayment(callback)` | Check if callback is OK to confirm |
 | `isSuccessStatus(status)` | `true` when PEC status is `0` |
+| `isValidUrl(url)` | Validate HTTP/HTTPS callback URL |
 | `toRials(amount, currency)` | Convert amount to Rials |
+| `validateAmount(amount)` | Throw if amount is invalid |
+| `validateSaleReportDateRange(from, to)` | Enforce max 30-day report window |
 
 ### Errors
 

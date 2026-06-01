@@ -93,7 +93,9 @@ const client = new PecClient({
 
 ### هندلر callback (مثال Express)
 
-پس از پرداخت، PEC با **POST** به آدرس callback شما فیلدهایی مثل `Token`، `status`، `OrderId`، `RRN`، `Amount` و `TerminalNo` ارسال می‌کند.
+پس از پرداخت، PEC با **POST** به آدرس callback شما فیلدهایی مثل `Token`، `status`، `OrderId`، `RRN`، `Amount` و `TerminalNo` ارسال می‌کند. مقدار `req.body` را به `parseCallback()` بدهید. اگر route شما query می‌خواند، ابتدا آن را با body ادغام کنید.
+
+آدرس callback می‌تواند برای توسعه محلی **HTTP** (مثل `http://localhost`) یا در production **HTTPS** باشد.
 
 ```typescript
 app.post('/payment/callback', async (req, res) => {
@@ -128,6 +130,8 @@ import { toRials } from 'pec-sdk';
 toRials(50000, 'toman'); // 500000
 toRials(500000, 'rial'); // 500000
 ```
+
+در **پرداخت تسهیمی**، مبلغ هر حساب (`accounts[].amount`) با همان `currency` درخواست اصلی به ریال تبدیل می‌شود.
 
 ## مرجع API
 
@@ -164,7 +168,10 @@ const client = new PecClient({
 | `parseCallback(body)` | پارس بدنه POST بازگشتی از بانک |
 | `shouldConfirmPayment(callback)` | بررسی آماده بودن callback برای confirm |
 | `isSuccessStatus(status)` | `true` وقتی status برابر `0` باشد |
+| `isValidUrl(url)` | اعتبارسنجی آدرس callback با HTTP/HTTPS |
 | `toRials(amount, currency)` | تبدیل مبلغ به ریال |
+| `validateAmount(amount)` | خطا در صورت مبلغ نامعتبر |
+| `validateSaleReportDateRange(from, to)` | محدودیت بازه ۳۰ روزه گزارش |
 
 ### خطاها
 

@@ -1,6 +1,6 @@
 {
   "name": "pec-sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "TypeScript SDK for PEC (Parsian Electronic Commerce) payment gateway.",
   "type": "commonjs",
   "main": "./dist/cjs/index.js",
@@ -20,16 +20,20 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "build": "tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && node scripts/postbuild-esm.mjs",
+    "build": "rm -rf dist && tsc -p tsconfig.cjs.json && tsc -p tsconfig.esm.json && node scripts/postbuild-esm.mjs",
     "prepublishOnly": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run"
   },
   "author": "Alireza Mohammadvali <a.mv99@outlook.com> (https://github.com/AlirezaMoVali)",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "typescript": "^5.4.4"
+    "typescript": "^5.4.4",
+    "vitest": "^3.0.0"
   },
   "dependencies": {
     "axios": "^1.6.8",

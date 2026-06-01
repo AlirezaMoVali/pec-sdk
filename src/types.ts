@@ -97,7 +97,10 @@ export interface GetBillInfoInput {
 
 export interface BillInfoResult {
   status: number;
-  [key: string]: unknown;
+  message: string;
+  amount: string;
+  billId: string;
+  payId: string;
 }
 
 export interface RequestMobileTopupInput {

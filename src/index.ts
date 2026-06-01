@@ -6,12 +6,17 @@ export {
   getPaymentPageUrl,
   isSuccessStatus,
   isValidHttpsUrl,
+  isValidUrl,
   mapMultiplexedAccounts,
+  normalizeBillInfoResult,
   normalizeSoapField,
   normalizeSoapNumber,
   parseCallback,
   shouldConfirmPayment,
   toRials,
+  validateAmount,
+  validateMultiplexedAccounts,
+  validateSaleReportDateRange,
 } from './utils.js';
 export type {
   BillInfoResult,
